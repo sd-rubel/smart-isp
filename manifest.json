@@ -1,0 +1,18 @@
+{
+  "name": "SMART-ISP Portal",
+  "short_name": "SMART-ISP",
+  "description": "SMART-ISP Customer Management Portal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%237c3aed'/><path d='M50 35L65 60H35z' fill='white'/></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["business", "productivity"]
+}
