@@ -1,1 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SMART-ISP | Customer Portal</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📶</text></svg>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#7c3aed">
+    <meta name="description" content="SMART-ISP Customer Management Portal">
+    
+    <!-- External Resources -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --primary-gradient: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a78bfa 100%);
+            --card-gradient: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.12);
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #faf5ff 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #334155;
+        }
+        
+        /* Glass Morphism Header */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* Premium Card Design */
+        .premium-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 24px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 24px 24px 0 0;
+        }
+        
+        .premium-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            transform: rotate(45deg);
+            transition: transform 0.8s ease;
+            opacity: 0;
+        }
+        
+        .premium-card:hover::after {
+            opacity: 1;
+            transform: rotate(45deg) translate(0, 0);
+            animation: shimmer 1.5s infinite;
+        }
+        
+        .premium-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(124, 58, 237, 0.2);
+        }
+        
+        /* User Avatar */
+        .user-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            flex-shrink: 0;
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-avatar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+            transform: translateX(-100%);
+        }
+        
+        .premium-card:hover .user-avatar::before {
+            animation: shimmer 1.5s infinite;
+        }
+        
+        /* Floating Action Button - Hidden by default */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            background: var(--primary-gradient);
+            border-radius: 18px;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
+            cursor: pointer;
+            z-index: 99;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            outline: none;
+        }
+        
+        .fab.visible {
+            display: flex;
+            animation: fabIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 15px 40px rgba(124, 58, 237, 0.5);
+        }
+        
+        /* Toast Notification - Fixed */
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            z-index: 9999;
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        /* Modal Backdrop */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-backdrop.show {
+            opacity: 1;
+        }
+        
+        /* Modal Content */
+        .modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            background: white;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 420px;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-content.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        
+        /* Animations */
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @keyframes fabIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Search Bar */
+        .search-bar {
+            background: white;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+        
+        /* Stats Cards */
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border-radius: 20px;
+            padding: 16px 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Package Badge */
+        .package-badge {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+        
+        /* Loading Animation */
+        .loading-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #8b5cf6;
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+        
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #8b5cf6, #7c3aed);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #7c3aed, #6d28d9);
+        }
+        
+        /* Utility Classes */
+        .animate-slide-in {
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        .text-gradient {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 640px) {
+            .premium-card {
+                margin: 0 12px;
+                padding: 20px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                border-radius: 24px;
+            }
+            
+            .fab {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+        
+        /* Dark Mode */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+                color: #e2e8f0;
+            }
+            
+            .glass-header {
+                background: rgba(15, 23, 42, 0.92);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            
+            .premium-card {
+                background: linear-gradient(145deg, #1e293b, #0f172a);
+                border-color: rgba(255, 255, 255, 0.05);
+            }
+            
+            .search-bar {
+                background: #1e293b;
+                border-color: #334155;
+                color: #e2e8f0;
+            }
+            
+            .stat-card {
+                background: linear-gradient(135deg, #1e293b, #0f172a);
+                border-color: rgba(255, 255, 255, 0.05);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-bolt text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black tracking-tight">
+                            <span class="text-gradient">SMART-ISP</span>
+                        </h1>
+                        <p id="lastSyncDisplay" class="text-xs text-slate-500 font-medium mt-1 flex items-center gap-2">
+                            <span id="statusIndicator" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>Loading...</span>
+                        </p>
+                    </div>
+                </div>
 
+                <!-- Actions -->
+                <div class="flex items-center gap-3">
+                    <!-- Install Button -->
+                    <button id="installBtn" onclick="installApp()" 
+                            class="hidden bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg hover:shadow-xl active:scale-95">
+                        <i class="fa-solid fa-download text-xs"></i> INSTALL
+                    </button>
+                    
+                    <!-- Sort Dropdown -->
+                    <div class="relative">
+                        <select id="sortOrder" onchange="sortAndRender()" 
+                                class="bg-white/90 border border-slate-200 text-slate-700 text-xs font-semibold py-2.5 pl-4 pr-10 rounded-xl outline-none cursor-pointer appearance-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all">
+                            <option value="default" class="text-slate-700">Sort By</option>
+                            <option value="name-asc" class="text-slate-700">Name A-Z ↑</option>
+                            <option value="name-desc" class="text-slate-700">Name Z-A ↓</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                    </div>
+                    
+                    <!-- Refresh Button -->
+                    <button onclick="refreshData(true)" 
+                            class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center transition-all hover:bg-slate-50 active:scale-95 group">
+                        <i id="syncIcon" class="fa-solid fa-arrows-rotate text-slate-600 text-sm group-hover:rotate-180 transition-transform duration-500"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Section -->
+            <div class="pb-6">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="searchInput" onkeyup="filterData()" 
+                           placeholder="Search customer by name, ID, or mobile..." 
+                           class="w-full pl-12 pr-5 py-4 search-bar rounded-2xl outline-none text-sm font-medium placeholder-slate-400">
+                </div>
+                
+                <!-- Stats -->
+                <div id="quickStats" class="flex items-center gap-4 mt-5">
+                    <div class="stat-card">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+                                <i class="fa-solid fa-users text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 font-medium">Total</p>
+                                <p id="totalCustomers" class="text-xl font-black text-slate-800">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-48 pb-24">
+        <!-- Loading -->
+        <div id="loader" class="hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="premium-card">
+                    <div class="flex items-center gap-4">
+                        <div class="user-avatar skeleton-loading"></div>
+                        <div class="flex-1 space-y-2">
+                            <div class="h-4 bg-slate-200 rounded skeleton-loading"></div>
+                            <div class="h-3 bg-slate-100 rounded skeleton-loading"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results -->
+        <div id="noResults" class="hidden flex-col items-center justify-center py-20 text-center animate-slide-in">
+            <div class="w-24 h-24 rounded-full bg-violet-50 flex items-center justify-center mb-6">
+                <i class="fa-solid fa-user-slash text-violet-400 text-3xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-700 mb-2">No customers found</h3>
+            <p class="text-slate-500 text-sm">Try a different search term</p>
+        </div>
+
+        <!-- Grid Container -->
+        <div id="gridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+    </main>
+
+    <!-- User Modal -->
+    <div class="modal-backdrop" onclick="closeModal()"></div>
+    <div class="modal-content">
+        <div class="h-4 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 rounded-t-3xl"></div>
+        <div class="p-8">
+            <!-- Header -->
+            <div class="flex justify-between items-start mb-8">
+                <div class="flex items-center gap-4">
+                    <div id="modalAvatar" class="user-avatar text-xl">J</div>
+                    <div>
+                        <h2 id="modalName" class="text-xl font-black text-slate-900">John Doe</h2>
+                        <p id="modalBillingID" class="text-violet-600 font-bold text-xs tracking-widest uppercase mt-1">ID: ---</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:border-slate-300 transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Customer Info -->
+            <div class="space-y-4 mb-8">
+                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-colors">
+                    <div class="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center flex-shrink: 0">
+                        <i class="fa-solid fa-fingerprint text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">System ID</p>
+                        <p id="modalUserID" class="text-slate-900 font-bold">---</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-colors">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink: 0">
+                        <i class="fa-solid fa-phone text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Mobile Number</p>
+                        <p id="modalMobile" class="text-slate-900 font-bold text-lg">---</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-colors">
+                    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink: 0">
+                        <i class="fa-solid fa-wifi text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Internet Package</p>
+                        <p id="modalPackage" class="text-gradient font-black text-xl">---</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <a id="payBtn" href="#" target="_blank" 
+               class="w-full bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg">
+                <i class="fa-solid fa-credit-card text-sm"></i>
+                <span>Proceed to Payment</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="scrollToTop()" id="scrollToTopBtn">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Toast Notification - Fixed -->
+    <div class="toast" id="toast">
+        <div class="bg-white rounded-2xl shadow-xl p-5 max-w-sm border border-slate-100">
+            <div class="flex items-center gap-4">
+                <div id="toastIcon" class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink: 0">
+                    <i class="fa-solid fa-check text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <p id="toastMessage" class="font-bold text-slate-800">Success!</p>
+                    <p class="text-xs text-slate-500 mt-1">Just now</p>
+                </div>
+                <button onclick="hideToast()" class="w-8 h-8 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzfGqXMYp2p-Mv1fdE1XhBK5p4AQTw4gH8xOqgECW3j0yRCGfgRw-GOHd0C1XFICtug3Q/exec",
+            CACHE_TTL: 5 * 60 * 1000,
+            OFFLINE_DATA_KEY: 'smart_isp_data',
+            SYNC_TIMESTAMP_KEY: 'smart_isp_sync',
+            INSTALL_PROMPT_KEY: 'smart_isp_install_prompt'
+        };
+
+        // Global Variables
+        let userData = [];
+        let filteredData = [];
+        let deferredPrompt = null;
+        let onlineStatus = navigator.onLine;
+        let isModalOpen = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            setupEventListeners();
+        });
+
+        function initializeApp() {
+            // Set network status
+            document.getElementById('statusIndicator').className = 
+                onlineStatus ? 
+                'w-2 h-2 rounded-full bg-emerald-500 animate-pulse' :
+                'w-2 h-2 rounded-full bg-amber-500 animate-pulse';
+            
+            // Initial data load
+            refreshData(false);
+            
+            // Setup scroll listener for FAB
+            let lastScrollTop = 0;
+            window.addEventListener('scroll', () => {
+                if (isModalOpen) {
+                    document.getElementById('scrollToTopBtn').classList.remove('visible');
+                    return;
+                }
+                
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const fab = document.getElementById('scrollToTopBtn');
+                
+                if (scrollTop > 300 && scrollTop > lastScrollTop) {
+                    // Scrolling down and passed threshold
+                    fab.classList.add('visible');
+                } else if (scrollTop < 100) {
+                    // At the top
+                    fab.classList.remove('visible');
+                }
+                
+                lastScrollTop = scrollTop;
+            }, { passive: true });
+        }
+
+        function setupEventListeners() {
+            // Modal backdrop click
+            document.querySelector('.modal-backdrop').addEventListener('click', closeModal);
+            
+            // Enter key in search
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') filterData();
+            });
+            
+            // Network status
+            window.addEventListener('online', () => {
+                onlineStatus = true;
+                document.getElementById('statusIndicator').className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                showToast('Back online. Syncing...', 'success');
+                refreshData(true);
+            });
+            
+            window.addEventListener('offline', () => {
+                onlineStatus = false;
+                document.getElementById('statusIndicator').className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';
+                showToast('Offline. Using cached data.', 'warning');
+            });
+            
+            // PWA Installation
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                if (!localStorage.getItem(CONFIG.INSTALL_PROMPT_KEY)) {
+                    setTimeout(() => {
+                        document.getElementById('installBtn').classList.remove('hidden');
+                        showToast('Install SMART-ISP for quick access', 'info');
+                        localStorage.setItem(CONFIG.INSTALL_PROMPT_KEY, 'true');
+                    }, 3000);
+                }
+            });
+            
+            window.addEventListener('appinstalled', () => {
+                document.getElementById('installBtn').classList.add('hidden');
+                showToast('App installed successfully!', 'success');
+                deferredPrompt = null;
+            });
+        }
+
+        // PWA Installation
+        async function installApp() {
+            if (!deferredPrompt) {
+                showToast('Installation not available', 'warning');
+                return;
+            }
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                document.getElementById('installBtn').classList.add('hidden');
+                showToast('Installation started...', 'success');
+            }
+            
+            deferredPrompt = null;
+        }
+
+        // Data Management
+        async function refreshData(forceSync = false) {
+            const loader = document.getElementById('loader');
+            const syncIcon = document.getElementById('syncIcon');
+            const syncDisplay = document.getElementById('lastSyncDisplay');
+            
+            // Check cache
+            const cachedData = localStorage.getItem(CONFIG.OFFLINE_DATA_KEY);
+            const lastSync = localStorage.getItem(CONFIG.SYNC_TIMESTAMP_KEY);
+            const cacheAge = lastSync ? Date.now() - new Date(lastSync).getTime() : Infinity;
+
+            // Use cache if available and fresh
+            if (cachedData && !forceSync && cacheAge < CONFIG.CACHE_TTL) {
+                userData = JSON.parse(cachedData);
+                updateStats(userData);
+                syncDisplay.innerHTML = `<span class="text-emerald-600 font-medium">Synced ${formatTimeAgo(lastSync)}</span>`;
+                sortAndRender();
+                return;
+            }
+
+            // Show loading
+            syncIcon.classList.add('fa-spin');
+            loader.classList.remove('hidden');
+            document.getElementById('gridContainer').innerHTML = '';
+
+            try {
+                if (!onlineStatus) throw new Error('No internet connection');
+
+                const response = await fetch(CONFIG.SCRIPT_URL + '?t=' + Date.now());
+                if (!response.ok) throw new Error('Network error');
+                
+                const data = await response.json();
+                userData = data;
+                
+                // Cache data
+                const timestamp = new Date().toISOString();
+                localStorage.setItem(CONFIG.OFFLINE_DATA_KEY, JSON.stringify(data));
+                localStorage.setItem(CONFIG.SYNC_TIMESTAMP_KEY, timestamp);
+                
+                // Update UI
+                updateStats(data);
+                syncDisplay.innerHTML = `<span class="text-emerald-600 font-medium">Synced just now</span>`;
+                showToast('Data updated successfully!', 'success');
+                sortAndRender();
+                
+            } catch (error) {
+                console.error('Sync error:', error);
+                
+                // Fallback to cache
+                if (cachedData) {
+                    userData = JSON.parse(cachedData);
+                    updateStats(userData);
+                    sortAndRender();
+                    showToast(`Using cached data (${formatTimeAgo(lastSync)})`, 'warning');
+                } else {
+                    showToast('No data available. Check connection.', 'error');
+                    document.getElementById('gridContainer').innerHTML = `
+                        <div class="col-span-full text-center py-20 animate-slide-in">
+                            <div class="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-6">
+                                <i class="fa-solid fa-wifi-slash text-slate-400 text-3xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-700 mb-2">Connection Error</h3>
+                            <p class="text-slate-500 mb-6">Unable to load customer data</p>
+                            <button onclick="refreshData(true)" class="px-6 py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold rounded-xl hover:shadow-lg transition-all">
+                                Retry Connection
+                            </button>
+                        </div>
+                    `;
+                }
+            } finally {
+                loader.classList.add('hidden');
+                syncIcon.classList.remove('fa-spin');
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('totalCustomers').textContent = data.length;
+        }
+
+        function sortAndRender() {
+            const order = document.getElementById('sortOrder').value;
+            let dataToSort = [...userData];
+            
+            switch(order) {
+                case 'name-asc':
+                    dataToSort.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                    break;
+                case 'name-desc':
+                    dataToSort.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+                    break;
+                default:
+                    // Default sort by name ascending
+                    dataToSort.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            }
+            
+            filteredData = dataToSort;
+            renderGrid(filteredData);
+        }
+
+        function renderGrid(data) {
+            const container = document.getElementById('gridContainer');
+            const noResults = document.getElementById('noResults');
+            
+            if (data.length === 0) {
+                container.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+            
+            noResults.classList.add('hidden');
+            
+            container.innerHTML = data.map((user, index) => {
+                const initials = getInitials(user.name || 'Customer');
+                const delay = index * 50;
+                
+                return `
+                    <div onclick="openModal(${index})" 
+                         class="premium-card cursor-pointer animate-slide-in"
+                         style="animation-delay: ${delay}ms">
+                        <div class="flex items-start justify-between mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="user-avatar">
+                                    ${initials}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-black text-slate-900 text-lg truncate mb-1">${user.name || 'Unnamed Customer'}</h3>
+                                    <p class="text-xs text-slate-500 font-medium flex items-center gap-2">
+                                        <i class="fa-solid fa-id-card text-[10px]"></i>
+                                        ${user.id_num || 'No ID'}
+                                    </p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-slate-300 text-sm mt-2"></i>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                                    <i class="fa-solid fa-phone text-slate-500 text-xs"></i>
+                                </div>
+                                <span class="text-sm font-bold text-slate-700">${user.mobile || 'N/A'}</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                                <div class="package-badge">
+                                    ${user.pakage || 'Basic Plan'}
+                                </div>
+                                <div class="text-xs text-slate-400 font-medium">
+                                    Tap to view
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getInitials(name) {
+            return name
+                .split(' ')
+                .map(word => word[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+        }
+
+        function filterData() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (!query) {
+                filteredData = [...userData];
+                renderGrid(filteredData);
+                return;
+            }
+            
+            const results = userData.filter(user => {
+                return (
+                    (user.name && user.name.toLowerCase().includes(query)) ||
+                    (user.mobile && user.mobile.includes(query)) ||
+                    (user.id_num && user.id_num.toLowerCase().includes(query)) ||
+                    (user.pakage && user.pakage.toLowerCase().includes(query))
+                );
+            });
+            
+            filteredData = results;
+            renderGrid(results);
+        }
+
+        // Modal Functions
+        function openModal(index) {
+            isModalOpen = true;
+            const user = filteredData[index];
+            
+            // Hide FAB when modal opens
+            document.getElementById('scrollToTopBtn').classList.remove('visible');
+            
+            // Set modal content
+            document.getElementById('modalName').textContent = user.name || 'Unnamed Customer';
+            document.getElementById('modalBillingID').textContent = user.id_num ? `ID: ${user.id_num}` : 'ID: N/A';
+            document.getElementById('modalUserID').textContent = user.user_id || 'N/A';
+            document.getElementById('modalMobile').textContent = user.mobile || 'N/A';
+            document.getElementById('modalPackage').textContent = user.pakage || 'Basic Plan';
+            
+            // Set avatar initials
+            document.getElementById('modalAvatar').textContent = getInitials(user.name || 'Customer');
+            
+            // Set payment link
+            const payBtn = document.getElementById('payBtn');
+            if (user.id_num) {
+                payBtn.href = `https://ispbill.com/pay.php?c=1021&q=${encodeURIComponent(user.id_num)}`;
+                payBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                payBtn.href = '#';
+                payBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            
+            // Show modal
+            setTimeout(() => {
+                document.querySelector('.modal-backdrop').classList.add('show');
+                document.querySelector('.modal-content').classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }, 10);
+        }
+
+        function closeModal() {
+            isModalOpen = false;
+            document.querySelector('.modal-backdrop').classList.remove('show');
+            document.querySelector('.modal-content').classList.remove('show');
+            
+            setTimeout(() => {
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        // Toast Functions
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // Set icon and color based on type
+            const icons = {
+                success: { icon: 'fa-check', color: 'bg-emerald-50 text-emerald-600' },
+                error: { icon: 'fa-xmark', color: 'bg-red-50 text-red-600' },
+                warning: { icon: 'fa-triangle-exclamation', color: 'bg-amber-50 text-amber-600' },
+                info: { icon: 'fa-circle-info', color: 'bg-blue-50 text-blue-600' }
+            };
+            
+            const config = icons[type] || icons.info;
+            toastIcon.className = `w-10 h-10 rounded-xl ${config.color} flex items-center justify-center flex-shrink: 0`;
+            toastIcon.innerHTML = `<i class="fa-solid ${config.icon} text-sm"></i>`;
+            toastMessage.textContent = message;
+            
+            // Show toast
+            toast.classList.add('show');
+            
+            // Auto hide after 4 seconds
+            setTimeout(hideToast, 4000);
+        }
+
+        function hideToast() {
+            document.getElementById('toast').classList.remove('show');
+        }
+
+            // Utility Functions
+        function formatTimeAgo(timestamp) {
+            if (!timestamp) return 'never';
+            
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            
+            return date.toLocaleDateString();
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    console.log('Service Worker registered:', registration);
+                }).catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
